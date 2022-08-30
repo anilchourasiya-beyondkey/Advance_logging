@@ -410,14 +410,17 @@ object LogUtil {
             val formattedDate = sdf.format(calendar.time)
             return "$formattedDate.txt"
         }
+
     private val logFileDirPath: String
         get() = try {
             Environment.getExternalStorageDirectory().absolutePath + "/" + APPLICATION_ID + "/log"
         } catch (e: Exception) {
             "/storage/emulated/0" + "/Android/data/" + APPLICATION_ID + "/log"
         }
+
     private val logFileName: String
         get() = "logs_" + APPLICATION_ID + ".txt"
+
     private val tempLogFileName: String
         private get() = "temp_logs_" + APPLICATION_ID + ".txt"
 }
