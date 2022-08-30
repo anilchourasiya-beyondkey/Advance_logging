@@ -21,7 +21,8 @@ dependencies {
   
 >For use the advance logging use below code
 
-  ```LogUtil.d(
+  ```
+  LogUtil.d(
             TAG,
             "Hello Advance Logging",
             BuildConfig.DEBUG,
