@@ -16,6 +16,7 @@ import com.beyondkey.advance_logging.LogUtil
 
 
 class MainActivity : AppCompatActivity() {
+    private val TAG = MainActivity::class.java.name
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -62,11 +63,11 @@ class MainActivity : AppCompatActivity() {
 
     fun writeLogsInTheFile(){
         LogUtil.d(
-            "MainActivity123",
+            TAG,
             "Hello Advance Logging",
-            BuildConfig.DEBUG,
+            com.my_package.my_app.BuildConfig.DEBUG,
             true,
-            BuildConfig.APPLICATION_ID
+            com.my_package.my_app.BuildConfig.APPLICATION_ID
         )
     }
 
