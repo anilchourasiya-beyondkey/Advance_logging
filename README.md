@@ -15,7 +15,7 @@ allprojects {
 
 ```gradle
 dependencies {
-	        implementation 'com.github.anilchourasiya-beyondkey:Advance_logging:Tag'
+	        implementation 'com.github.anilchourasiya-beyondkey:Advance_logging:1.0'
 	}
   ```
   
