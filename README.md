@@ -15,19 +15,19 @@ allprojects {
 
 ```gradle
 dependencies {
-	        implementation 'com.github.anilchourasiya-beyondkey:Advance_logging:1.0'
+	        implementation 'com.github.anilchourasiya-beyondkey:Advance_logging:2.0'
 	}
   ```
   
 >For use the advance logging use below code
 
   ```
-  LogUtil.d(
+ LogUtil.d(
             TAG,
             "Hello Advance Logging",
-            BuildConfig.DEBUG,
+            com.my_package.my_app.BuildConfig.DEBUG,
             true,
-            BuildConfig.APPLICATION_ID
+            com.my_package.my_app.BuildConfig.APPLICATION_ID
         )
 ```
   
