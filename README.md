@@ -15,7 +15,7 @@ allprojects {
 
 ```gradle
 dependencies {
-	        implementation 'com.github.anilchourasiya-beyondkey:Advance_logging:2.0'
+	        implementation 'com.github.anilchourasiya-beyondkey:Advance_logging:1.0'
 	}
   ```
   
