@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +21,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val btnDeleteLogs = findViewById<Button>(R.id.btnDeleteLogs)
+
+        btnDeleteLogs.setOnClickListener{
+            LogUtil.deleteDailyLogFilesOlderThanDays(1)
+        }
     }
 
     override fun onResume() {
@@ -61,14 +67,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun writeLogsInTheFile(){
+    fun writeLogsInTheFile() {
         LogUtil.d(
             TAG,
             "Hello Advance Logging",
-            com.my_package.my_app.BuildConfig.DEBUG,
+            BuildConfig.DEBUG,
             true,
-            com.my_package.my_app.BuildConfig.APPLICATION_ID
+            BuildConfig.APPLICATION_ID,
+            true
         )
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,

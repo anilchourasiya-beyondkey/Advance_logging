@@ -38,11 +38,18 @@ object LogUtil {
      * @param tag TAG string
      * @param msg Message to write
      */
-    fun e(tag: String, msg: String, buildType: Boolean, writeToFile: Boolean, applicationID:String) {
+    fun e(
+        tag: String,
+        msg: String,
+        buildType: Boolean,
+        writeToFile: Boolean,
+        applicationID: String,
+        createLogFileDateWise: Boolean
+    ) {
         log(LOG_LEVEL_ERROR, tag, msg, buildType)
         APPLICATION_ID = applicationID
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_ERROR, writeToFile)
+            writeLogToFile(tag, msg, LOG_LEVEL_ERROR, writeToFile, createLogFileDateWise)
         }
     }
 
@@ -59,11 +66,18 @@ object LogUtil {
      * @param tag TAG string
      * @param msg Message to write
      */
-    fun w(tag: String, msg: String, buildType: Boolean, writeToFile: Boolean, applicationID:String) {
+    fun w(
+        tag: String,
+        msg: String,
+        buildType: Boolean,
+        writeToFile: Boolean,
+        applicationID: String,
+        createLogFileDateWise: Boolean
+    ) {
         log(LOG_LEVEL_WARN, tag, msg, buildType)
         APPLICATION_ID = applicationID
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_WARN,writeToFile)
+            writeLogToFile(tag, msg, LOG_LEVEL_WARN, writeToFile, createLogFileDateWise)
         }
     }
 
@@ -80,11 +94,18 @@ object LogUtil {
      * @param tag TAG string
      * @param msg Message to write
      */
-    fun d(tag: String, msg: String, buildType: Boolean, writeToFile: Boolean, applicationID:String) {
+    fun d(
+        tag: String,
+        msg: String,
+        buildType: Boolean,
+        writeToFile: Boolean,
+        applicationID: String,
+        createLogFileDateWise: Boolean
+    ) {
         log(LOG_LEVEL_DEBUG, tag, msg, buildType)
         APPLICATION_ID = applicationID
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_DEBUG, writeToFile)
+            writeLogToFile(tag, msg, LOG_LEVEL_DEBUG, writeToFile, createLogFileDateWise)
         }
     }
 
@@ -101,11 +122,18 @@ object LogUtil {
      * @param tag TAG string
      * @param msg Message to write
      */
-    fun i(tag: String, msg: String, buildType: Boolean, writeToFile: Boolean, applicationID:String) {
+    fun i(
+        tag: String,
+        msg: String,
+        buildType: Boolean,
+        writeToFile: Boolean,
+        applicationID: String,
+        createLogFileDateWise: Boolean
+    ) {
         log(LOG_LEVEL_INFO, tag, msg, buildType)
         APPLICATION_ID = applicationID
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_INFO, writeToFile)
+            writeLogToFile(tag, msg, LOG_LEVEL_INFO, writeToFile, createLogFileDateWise)
         }
     }
 
@@ -122,25 +150,43 @@ object LogUtil {
      * @param tag TAG string
      * @param msg Message to write
      */
-    fun v(tag: String, msg: String, buildType: Boolean, writeToFile: Boolean, applicationID:String) {
+    fun v(
+        tag: String,
+        msg: String,
+        buildType: Boolean,
+        writeToFile: Boolean,
+        applicationID: String,
+        createLogFileDateWise: Boolean
+    ) {
         log(LOG_LEVEL_VERBOSE, tag, msg, buildType)
         APPLICATION_ID = applicationID
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_VERBOSE,writeToFile)
+            writeLogToFile(tag, msg, LOG_LEVEL_VERBOSE, writeToFile, createLogFileDateWise)
         }
     }
 
-    fun printStackTrace(tag: String, exception: Exception, buildType : Boolean, writeToFile: Boolean = false) {
+    fun printStackTrace(
+        tag: String,
+        exception: Exception,
+        buildType: Boolean,
+        writeToFile: Boolean,
+        createLogFileDateWise: Boolean
+    ) {
         if (buildType) {
             exception.printStackTrace()
         }
         GlobalScope.launch {
-            writeLogToFile(tag, exception.message, writeToFile)
-            writeLogToFile(tag, Log.getStackTraceString(exception), writeToFile)
+            writeLogToFile(tag, exception.message, writeToFile, createLogFileDateWise)
+            writeLogToFile(
+                tag,
+                Log.getStackTraceString(exception),
+                writeToFile,
+                createLogFileDateWise
+            )
         }
     }
 
-    private fun log(level: Int, tag: String, msg: String, buildType : Boolean ) {
+    private fun log(level: Int, tag: String, msg: String, buildType: Boolean) {
         /*long currentTime = System.currentTimeMillis();
         msg = "[Time_ms:" + currentTime + "] " + msg;*/
         var msg: String? = msg
@@ -168,9 +214,11 @@ object LogUtil {
             trimFileToZeroSize(tempFile)
             copy(outputFile, tempFile) //copy content of outputFile to tempFile
             trimFileToZeroSize(outputFile) //remove content form output file
-            copySkipInitialData(tempFile,
+            copySkipInitialData(
+                tempFile,
                 outputFile,
-                LOG_FILE_MAX_SIZE - LOG_FILE_MIN_SIZE) //copy content back from temp file to out put file, skiping initial data
+                LOG_FILE_MAX_SIZE - LOG_FILE_MIN_SIZE
+            ) //copy content back from temp file to out put file, skiping initial data
             trimFileToZeroSize(tempFile) //remove content from temp file
         } catch (e: Exception) {
             e.printStackTrace()
@@ -204,7 +252,7 @@ object LogUtil {
     }
 
     @Throws(IOException::class)
-    fun copy(src: File?, dst: File?) {
+    private fun copy(src: File?, dst: File?) {
         val `in`: InputStream = FileInputStream(src)
         try {
             val out: OutputStream = FileOutputStream(dst)
@@ -291,7 +339,13 @@ object LogUtil {
         }
     }
 
-    private fun writeLogToFile(tag: String, msg: String, logLevel: Int, writeToFile: Boolean) {
+    private fun writeLogToFile(
+        tag: String,
+        msg: String,
+        logLevel: Int,
+        writeToFile: Boolean,
+        createLogFileDateWise: Boolean
+    ) {
         var tag = tag
         when (logLevel) {
             LOG_LEVEL_DEBUG -> tag = "D/$tag"
@@ -300,7 +354,7 @@ object LogUtil {
             LOG_LEVEL_WARN -> tag = "W/$tag"
             LOG_LEVEL_ERROR -> tag = "E/$tag"
         }
-        writeLogToFile(tag, msg, writeToFile)
+        writeLogToFile(tag, msg, writeToFile, createLogFileDateWise)
     }
 
     /**
@@ -308,7 +362,12 @@ object LogUtil {
      * @param tag TAG string
      * @param msg msg
      */
-    private fun writeLogToFile(tag: String, msg: String?, writeToFile: Boolean) {
+    private fun writeLogToFile(
+        tag: String,
+        msg: String?,
+        writeToFile: Boolean,
+        createLogFileDateWise: Boolean
+    ) {
         if (writeToFile) {
             var msg = msg
             if (msg == null) {
@@ -325,7 +384,13 @@ object LogUtil {
             if (!logDir.exists()) {
                 logDir.mkdirs()
             }
-            val outputFile = File(logDir, logFileName)
+            var outputFile: File
+            if (createLogFileDateWise) {
+                outputFile = File(logDir, todayLogFileName)
+            } else {
+                outputFile = File(logDir, logFileName)
+            }
+
             if (!outputFile.exists()) {
                 try {
                     outputFile.createNewFile()
@@ -413,7 +478,7 @@ object LogUtil {
 
     private val logFileDirPath: String
         get() = try {
-            Environment.getExternalStorageDirectory().absolutePath + "/" + APPLICATION_ID + "/log"
+            Environment.getExternalStorageDirectory().absolutePath + "/Android/data/" + APPLICATION_ID + "/log"
         } catch (e: Exception) {
             "/storage/emulated/0" + "/Android/data/" + APPLICATION_ID + "/log"
         }
@@ -422,5 +487,5 @@ object LogUtil {
         get() = "logs_" + APPLICATION_ID + ".txt"
 
     private val tempLogFileName: String
-        private get() = "temp_logs_" + APPLICATION_ID + ".txt"
+        get() = "temp_logs_" + APPLICATION_ID + ".txt"
 }
