@@ -1,7 +1,7 @@
 # Advance_logging
->Step 1. Add the JitPack repository to your build file
+### Step 1. Add the JitPack repository to your build file
 ```gradle
-Add it in your root build.gradle at the end of repositories:
+//Add it in your root build.gradle at the end of repositories:
 
 allprojects {
 		repositories {
@@ -11,7 +11,7 @@ allprojects {
 	}
 ```
 
->Step 2. Add the dependency
+### Step 2. Add the dependency
 
 ```gradle
 dependencies {
@@ -19,21 +19,29 @@ dependencies {
 	}
   ```
   
->For use the advance logging use below code
+### Step 3. For use the advance logging use below code
 
-  ```
+  ```gradle
  LogUtil.d(
-            TAG,
-            "Hello Advance Logging",
-            com.my_package.my_app.BuildConfig.DEBUG,
-            true,
-            com.my_package.my_app.BuildConfig.APPLICATION_ID
+    TAG,
+    "Hello Advance Logging",
+    com.my_package.my_app.BuildConfig.DEBUG, //writing the logs only debug build and pass `true` for release build as well.
+    true, //writeToFile
+    com.my_package.my_app.BuildConfig.APPLICATION_ID, //log file name
+    true //createLogFileDateWise 
         )
+
+//To delete old log files which were written date wise use the below code      
+
+LogUtil.deleteDailyLogFilesOlderThanDays(1)
+
+	
 ```
   
- >This requires permission to access the storage
- 
- ```
+This requires permission to access the storage   
+---
+#### AndroidManifest.xml     
+ ```gradle
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 	
@@ -41,8 +49,35 @@ dependencies {
 
 <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-	
- Android 11
+
+<provider
+      android:name="androidx.core.content.FileProvider"
+      android:authorities="${applicationId}.fileprovider"
+      android:exported="false"
+      android:grantUriPermissions="true">
+      <meta-data
+          android:name="android.support.FILE_PROVIDER_PATHS"
+          android:resource="@xml/providerfile" />
+</provider>
+```
+#### providerfile.xml   
+```gradle
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-files-path
+        name="images"
+        path="Pictures"/>
+
+    <external-path
+        name="external_files"
+        path="." />
+</paths>
+
+```
+
+#### Code level changes   
+```gradle
+Android 11
 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
@@ -73,6 +108,6 @@ if (ContextCompat.checkSelfPermission(
                 )
             }
 ```
-            
+         
             
        
