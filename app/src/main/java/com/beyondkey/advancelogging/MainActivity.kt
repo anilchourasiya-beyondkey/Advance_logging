@@ -9,11 +9,12 @@ import android.os.Environment
 import android.provider.Settings
 import android.widget.Button
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.beyondkey.advance_logging.Constant
 import com.beyondkey.advance_logging.LogUtil
+import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         val btnDeleteLogs = findViewById<Button>(R.id.btnDeleteLogs)
 
         btnDeleteLogs.setOnClickListener{
-            LogUtil.deleteDailyLogFilesOlderThanDays(1)
+            LogUtil.deleteDailyLogFilesOlderThanDays(1, Constant.INTERNAL_FOLDER)
         }
     }
 
@@ -68,13 +69,63 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun writeLogsInTheFile() {
+        LogUtil.e(
+            TAG,
+            "Hello Advance Logging",
+            BuildConfig.DEBUG,
+            true,
+            BuildConfig.APPLICATION_ID,
+            true,
+            Constant.EXTERNAL_FOLDER
+        )
+
+        LogUtil.w(
+            TAG,
+            "Hello Advance Logging",
+            BuildConfig.DEBUG,
+            true,
+            BuildConfig.APPLICATION_ID,
+            true,
+            Constant.EXTERNAL_FOLDER
+        )
+
         LogUtil.d(
             TAG,
             "Hello Advance Logging",
             BuildConfig.DEBUG,
             true,
             BuildConfig.APPLICATION_ID,
-            true
+            true,
+            Constant.INTERNAL_FOLDER
+        )
+
+        LogUtil.i(
+            TAG,
+            "Hello Advance Logging",
+            BuildConfig.DEBUG,
+            true,
+            BuildConfig.APPLICATION_ID,
+            true,
+            Constant.INTERNAL_FOLDER
+        )
+
+        LogUtil.v(
+            TAG,
+            "Hello Advance Logging",
+            BuildConfig.DEBUG,
+            true,
+            BuildConfig.APPLICATION_ID,
+            true,
+            Constant.INTERNAL_FOLDER
+        )
+
+        LogUtil.printStackTrace(
+            TAG,
+            Exception(),
+            BuildConfig.DEBUG,
+            true,
+            true,
+            Constant.INTERNAL_FOLDER
         )
 
     }

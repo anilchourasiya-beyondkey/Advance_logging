@@ -24,6 +24,8 @@ object LogUtil {
     private const val LOG_FILE_MAX_SIZE = (1024 * 1024 * 5 //5MB
             ).toLong()
     private var APPLICATION_ID = "Advance_Logging"
+    private var SaveFileInFolder = Constant.EXTERNAL_FOLDER
+
 
     /**
      * writes log level e in debug build only
@@ -44,12 +46,14 @@ object LogUtil {
         buildType: Boolean,
         writeToFile: Boolean,
         applicationID: String,
-        createLogFileDateWise: Boolean
+        createLogFileDateWise: Boolean,
+        savedFilelFolder: String
     ) {
         log(LOG_LEVEL_ERROR, tag, msg, buildType)
         APPLICATION_ID = applicationID
+        this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_ERROR, writeToFile, createLogFileDateWise)
+            writeLogToFile(tag, msg, LOG_LEVEL_ERROR, writeToFile, createLogFileDateWise,savedFilelFolder)
         }
     }
 
@@ -72,12 +76,14 @@ object LogUtil {
         buildType: Boolean,
         writeToFile: Boolean,
         applicationID: String,
-        createLogFileDateWise: Boolean
+        createLogFileDateWise: Boolean,
+        savedFilelFolder: String
     ) {
         log(LOG_LEVEL_WARN, tag, msg, buildType)
         APPLICATION_ID = applicationID
+        this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_WARN, writeToFile, createLogFileDateWise)
+            writeLogToFile(tag, msg, LOG_LEVEL_WARN, writeToFile, createLogFileDateWise,savedFilelFolder)
         }
     }
 
@@ -100,12 +106,14 @@ object LogUtil {
         buildType: Boolean,
         writeToFile: Boolean,
         applicationID: String,
-        createLogFileDateWise: Boolean
+        createLogFileDateWise: Boolean,
+        savedFilelFolder: String
     ) {
         log(LOG_LEVEL_DEBUG, tag, msg, buildType)
         APPLICATION_ID = applicationID
+        this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_DEBUG, writeToFile, createLogFileDateWise)
+            writeLogToFile(tag, msg, LOG_LEVEL_DEBUG, writeToFile, createLogFileDateWise,savedFilelFolder)
         }
     }
 
@@ -128,12 +136,14 @@ object LogUtil {
         buildType: Boolean,
         writeToFile: Boolean,
         applicationID: String,
-        createLogFileDateWise: Boolean
+        createLogFileDateWise: Boolean,
+        savedFilelFolder: String
     ) {
         log(LOG_LEVEL_INFO, tag, msg, buildType)
         APPLICATION_ID = applicationID
+        this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_INFO, writeToFile, createLogFileDateWise)
+            writeLogToFile(tag, msg, LOG_LEVEL_INFO, writeToFile, createLogFileDateWise,savedFilelFolder)
         }
     }
 
@@ -156,12 +166,14 @@ object LogUtil {
         buildType: Boolean,
         writeToFile: Boolean,
         applicationID: String,
-        createLogFileDateWise: Boolean
+        createLogFileDateWise: Boolean,
+        savedFilelFolder: String
     ) {
         log(LOG_LEVEL_VERBOSE, tag, msg, buildType)
         APPLICATION_ID = applicationID
+        this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_VERBOSE, writeToFile, createLogFileDateWise)
+            writeLogToFile(tag, msg, LOG_LEVEL_VERBOSE, writeToFile, createLogFileDateWise,savedFilelFolder)
         }
     }
 
@@ -170,18 +182,20 @@ object LogUtil {
         exception: Exception,
         buildType: Boolean,
         writeToFile: Boolean,
-        createLogFileDateWise: Boolean
+        createLogFileDateWise: Boolean,
+        savedFilelFolder: String
     ) {
         if (buildType) {
             exception.printStackTrace()
         }
+        this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, exception.message, writeToFile, createLogFileDateWise)
+            writeLogToFile(tag, exception.message, writeToFile, createLogFileDateWise,savedFilelFolder)
             writeLogToFile(
                 tag,
                 Log.getStackTraceString(exception),
                 writeToFile,
-                createLogFileDateWise
+                createLogFileDateWise,savedFilelFolder
             )
         }
     }
@@ -305,7 +319,13 @@ object LogUtil {
      */
     private val tempFile: File
         private get() {
-            val logDir = File(logFileDirPath)
+            var logDir:File
+            if(SaveFileInFolder.equals(Constant.INTERNAL_FOLDER)){
+                logDir = File(logFileDirPathInternal)
+            }else{
+                logDir = File(logFileDirPathExternal)
+            }
+
             if (logDir.exists() && !logDir.isDirectory) {
                 logDir.delete()
             }
@@ -344,7 +364,9 @@ object LogUtil {
         msg: String,
         logLevel: Int,
         writeToFile: Boolean,
-        createLogFileDateWise: Boolean
+        createLogFileDateWise: Boolean,
+        savedFilelFolder: String
+
     ) {
         var tag = tag
         when (logLevel) {
@@ -354,7 +376,7 @@ object LogUtil {
             LOG_LEVEL_WARN -> tag = "W/$tag"
             LOG_LEVEL_ERROR -> tag = "E/$tag"
         }
-        writeLogToFile(tag, msg, writeToFile, createLogFileDateWise)
+        writeLogToFile(tag, msg, writeToFile, createLogFileDateWise,savedFilelFolder)
     }
 
     /**
@@ -366,7 +388,8 @@ object LogUtil {
         tag: String,
         msg: String?,
         writeToFile: Boolean,
-        createLogFileDateWise: Boolean
+        createLogFileDateWise: Boolean,
+        savedFilelFolder: String
     ) {
         if (writeToFile) {
             var msg = msg
@@ -377,7 +400,12 @@ object LogUtil {
             val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss:SSS")
             val strDateTime = sdf.format(date)
             msg = "[$strDateTime] $tag : $msg"
-            val logDir = File(logFileDirPath)
+            val logDir:File
+            if(savedFilelFolder.equals(Constant.INTERNAL_FOLDER)){
+                logDir = File(logFileDirPathInternal)
+            }else{
+                logDir = File(logFileDirPathExternal)
+            }
             if (logDir.exists() && !logDir.isDirectory) {
                 logDir.delete()
             }
@@ -418,8 +446,14 @@ object LogUtil {
         }
     }
 
-    fun deleteDailyLogFilesOlderThanDays(days: Int) {
-        val dailyLogFileDir = File(logFileDirPath)
+    fun deleteDailyLogFilesOlderThanDays(days: Int, savedFilelFolder: String) {
+        this.SaveFileInFolder = savedFilelFolder
+        val dailyLogFileDir:File
+        if(savedFilelFolder.equals(Constant.INTERNAL_FOLDER)){
+            dailyLogFileDir = File(logFileDirPathInternal)
+        }else{
+            dailyLogFileDir = File(logFileDirPathExternal)
+        }
         for (file in dailyLogFileDir.listFiles()) {
             try {
                 val fileNameWithoutExt = getBaseName(file.name)
@@ -476,7 +510,15 @@ object LogUtil {
             return "$formattedDate.txt"
         }
 
-    private val logFileDirPath: String
+
+    private val logFileDirPathExternal: String
+        get() = try {
+            Environment.getExternalStorageDirectory().absolutePath + "/" + APPLICATION_ID + "/log"
+        } catch (e: Exception) {
+            "/storage/emulated/0" + "/" + APPLICATION_ID + "/log"
+        }
+
+    private val logFileDirPathInternal: String
         get() = try {
             Environment.getExternalStorageDirectory().absolutePath + "/Android/data/" + APPLICATION_ID + "/log"
         } catch (e: Exception) {
