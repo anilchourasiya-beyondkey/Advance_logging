@@ -128,6 +128,7 @@ class MainActivity : AppCompatActivity() {
             Constant.INTERNAL_FOLDER
         )
 
+        LogUtil.getAllLogsFileForUpload(Constant.EXTERNAL_FOLDER)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,

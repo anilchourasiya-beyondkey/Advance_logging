@@ -5,9 +5,9 @@ import android.util.Log
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.*
-import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 /*
 *
@@ -530,4 +530,26 @@ object LogUtil {
 
     private val tempLogFileName: String
         get() = "temp_logs_" + APPLICATION_ID + ".txt"
+
+    fun getAllLogsFileForUpload(filelFolder : String) : MutableList<String>{
+        val fileList: MutableList<String> = ArrayList()
+        try {
+            val logDir:String
+            if(filelFolder.equals(Constant.INTERNAL_FOLDER)){
+                logDir = File(logFileDirPathInternal).toString()
+            }else{
+                logDir = File(logFileDirPathExternal).toString()
+            }
+            val file = File(logDir)
+            val arr: Array<String> = file.list()
+            for (i in arr) {
+                if (i.endsWith(".txt")) {
+                    fileList.add(i)
+                }
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+        return fileList
+    }
 }
