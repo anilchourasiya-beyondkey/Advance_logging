@@ -25,6 +25,7 @@ object LogUtil {
             ).toLong()
     private var APPLICATION_ID = "Advance_Logging"
     private var SaveFileInFolder = Constant.EXTERNAL_FOLDER
+    private var fileOutputExtension:String = Constant.EXTENSION_TXT
 
 
     /**
@@ -47,13 +48,24 @@ object LogUtil {
         writeToFile: Boolean,
         applicationID: String,
         createLogFileDateWise: Boolean,
-        savedFilelFolder: String
+        savedFilelFolder: String,
+        fileExtension:String
     ) {
         log(LOG_LEVEL_ERROR, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_ERROR, writeToFile, createLogFileDateWise,savedFilelFolder)
+            writeLogToFile(
+                tag,
+                msg,
+                LOG_LEVEL_ERROR,
+                writeToFile,
+                createLogFileDateWise,
+                savedFilelFolder,
+                "e",
+                fileExtension
+
+            )
         }
     }
 
@@ -77,13 +89,23 @@ object LogUtil {
         writeToFile: Boolean,
         applicationID: String,
         createLogFileDateWise: Boolean,
-        savedFilelFolder: String
+        savedFilelFolder: String,
+        fileExtension:String
     ) {
         log(LOG_LEVEL_WARN, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_WARN, writeToFile, createLogFileDateWise,savedFilelFolder)
+            writeLogToFile(
+                tag,
+                msg,
+                LOG_LEVEL_WARN,
+                writeToFile,
+                createLogFileDateWise,
+                savedFilelFolder,
+                "w",
+                fileExtension
+            )
         }
     }
 
@@ -107,13 +129,23 @@ object LogUtil {
         writeToFile: Boolean,
         applicationID: String,
         createLogFileDateWise: Boolean,
-        savedFilelFolder: String
+        savedFilelFolder: String,
+        fileExtension:String
     ) {
         log(LOG_LEVEL_DEBUG, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_DEBUG, writeToFile, createLogFileDateWise,savedFilelFolder)
+            writeLogToFile(
+                tag,
+                msg,
+                LOG_LEVEL_DEBUG,
+                writeToFile,
+                createLogFileDateWise,
+                savedFilelFolder,
+                "d",
+                fileExtension
+            )
         }
     }
 
@@ -137,13 +169,23 @@ object LogUtil {
         writeToFile: Boolean,
         applicationID: String,
         createLogFileDateWise: Boolean,
-        savedFilelFolder: String
+        savedFilelFolder: String,
+        fileExtension:String
     ) {
         log(LOG_LEVEL_INFO, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_INFO, writeToFile, createLogFileDateWise,savedFilelFolder)
+            writeLogToFile(
+                tag,
+                msg,
+                LOG_LEVEL_INFO,
+                writeToFile,
+                createLogFileDateWise,
+                savedFilelFolder,
+                "i",
+                fileExtension
+            )
         }
     }
 
@@ -167,13 +209,23 @@ object LogUtil {
         writeToFile: Boolean,
         applicationID: String,
         createLogFileDateWise: Boolean,
-        savedFilelFolder: String
+        savedFilelFolder: String,
+        fileExtension:String
     ) {
         log(LOG_LEVEL_VERBOSE, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, msg, LOG_LEVEL_VERBOSE, writeToFile, createLogFileDateWise,savedFilelFolder)
+            writeLogToFile(
+                tag,
+                msg,
+                LOG_LEVEL_VERBOSE,
+                writeToFile,
+                createLogFileDateWise,
+                savedFilelFolder,
+                "v",
+                fileExtension
+            )
         }
     }
 
@@ -183,19 +235,31 @@ object LogUtil {
         buildType: Boolean,
         writeToFile: Boolean,
         createLogFileDateWise: Boolean,
-        savedFilelFolder: String
+        savedFilelFolder: String,
+        fileExtension:String
     ) {
         if (buildType) {
             exception.printStackTrace()
         }
         this.SaveFileInFolder = savedFilelFolder
         GlobalScope.launch {
-            writeLogToFile(tag, exception.message, writeToFile, createLogFileDateWise,savedFilelFolder)
+            writeLogToFile(
+                tag,
+                exception.message,
+                writeToFile,
+                createLogFileDateWise,
+                savedFilelFolder,
+                "printStackTrace",
+                fileExtension
+            )
             writeLogToFile(
                 tag,
                 Log.getStackTraceString(exception),
                 writeToFile,
-                createLogFileDateWise,savedFilelFolder
+                createLogFileDateWise,
+                savedFilelFolder,
+                "printStackTrace",
+                fileExtension
             )
         }
     }
@@ -365,7 +429,9 @@ object LogUtil {
         logLevel: Int,
         writeToFile: Boolean,
         createLogFileDateWise: Boolean,
-        savedFilelFolder: String
+        savedFilelFolder: String,
+        methodName:String,
+        fileExtension:String
 
     ) {
         var tag = tag
@@ -376,7 +442,7 @@ object LogUtil {
             LOG_LEVEL_WARN -> tag = "W/$tag"
             LOG_LEVEL_ERROR -> tag = "E/$tag"
         }
-        writeLogToFile(tag, msg, writeToFile, createLogFileDateWise,savedFilelFolder)
+        writeLogToFile(tag, msg, writeToFile, createLogFileDateWise,savedFilelFolder,methodName,fileExtension)
     }
 
     /**
@@ -389,8 +455,11 @@ object LogUtil {
         msg: String?,
         writeToFile: Boolean,
         createLogFileDateWise: Boolean,
-        savedFilelFolder: String
+        savedFilelFolder: String,
+        methodName: String,
+        fileExtension:String
     ) {
+        this.fileOutputExtension = fileExtension
         if (writeToFile) {
             var msg = msg
             if (msg == null) {
@@ -400,6 +469,17 @@ object LogUtil {
             val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss:SSS")
             val strDateTime = sdf.format(date)
             msg = "[$strDateTime] $tag : $msg"
+
+            if(fileExtension.equals(Constant.EXTENSION_HTML)){
+                when (methodName){
+                    "e" -> msg = "<font color = \"#FE0906\">"+msg+"</font><br />"
+                    "w" ->  msg = "<font color = \"#E3E303\">"+msg+"</font><br />"
+                    "d" ->  msg = "<font color = \"##2874A6\">"+msg+"</font><br />"
+                    "i" ->  msg = "<font color = \"#035FE3\">"+msg+"</font><br />"
+                    "v" ->  msg = "<font color = \"##F4D03F\">"+msg+"</font><br />"
+                    "printStackTrace" ->  msg = "<font color = \"#566573\">"+msg+"</font><br />"
+                }
+            }
             val logDir:File
             if(savedFilelFolder.equals(Constant.INTERNAL_FOLDER)){
                 logDir = File(logFileDirPathInternal)
@@ -414,9 +494,9 @@ object LogUtil {
             }
             var outputFile: File
             if (createLogFileDateWise) {
-                outputFile = File(logDir, todayLogFileName)
+                outputFile = File(logDir, getTodayLogFileName(fileExtension))
             } else {
-                outputFile = File(logDir, logFileName)
+                outputFile = File(logDir, logFileName(fileExtension))
             }
 
             if (!outputFile.exists()) {
@@ -490,14 +570,14 @@ object LogUtil {
     }
 
     const val DAILY_LOG_FILE_NAME_DATE_FORMAT = "dd-MM-yyyy"
-    private val todayLogFileName: String
-        get() {
-            val sdf =
-                SimpleDateFormat(DAILY_LOG_FILE_NAME_DATE_FORMAT)
-            val calendar = Calendar.getInstance()
-            val formattedDate = sdf.format(calendar.time)
-            return "$formattedDate.txt"
-        }
+    private fun getTodayLogFileName(fileOutputExtension : String):String{
+        val sdf =
+            SimpleDateFormat(DAILY_LOG_FILE_NAME_DATE_FORMAT)
+        val calendar = Calendar.getInstance()
+        val formattedDate = sdf.format(calendar.time)
+        return "$formattedDate.$fileOutputExtension"
+    }
+
 
     //shift one day before
     private val yesterdayLogFileName: String
@@ -525,11 +605,13 @@ object LogUtil {
             "/storage/emulated/0" + "/Android/data/" + APPLICATION_ID + "/log"
         }
 
-    private val logFileName: String
-        get() = "logs_" + APPLICATION_ID + ".txt"
+    private fun logFileName(fileExtension: String): String{
+        return "logs_" + APPLICATION_ID + fileExtension
+    }
+
 
     private val tempLogFileName: String
-        get() = "temp_logs_" + APPLICATION_ID + ".txt"
+        get() = "temp_logs_" + APPLICATION_ID + fileOutputExtension
 
     fun getAllLogsFileForUpload(filelFolder : String) : MutableList<String>{
         val fileList: MutableList<String> = ArrayList()
@@ -543,7 +625,7 @@ object LogUtil {
             val file = File(logDir)
             val arr: Array<String> = file.list()
             for (i in arr) {
-                if (i.endsWith(".txt")) {
+                if (i.endsWith(fileOutputExtension)) {
                     fileList.add(i)
                 }
             }

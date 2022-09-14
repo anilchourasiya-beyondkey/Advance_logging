@@ -76,7 +76,8 @@ class MainActivity : AppCompatActivity() {
             true,
             BuildConfig.APPLICATION_ID,
             true,
-            Constant.EXTERNAL_FOLDER
+            Constant.INTERNAL_FOLDER,
+            Constant.EXTENSION_HTML
         )
 
         LogUtil.w(
@@ -86,7 +87,8 @@ class MainActivity : AppCompatActivity() {
             true,
             BuildConfig.APPLICATION_ID,
             true,
-            Constant.EXTERNAL_FOLDER
+            Constant.INTERNAL_FOLDER,
+            Constant.EXTENSION_TXT
         )
 
         LogUtil.d(
@@ -96,7 +98,8 @@ class MainActivity : AppCompatActivity() {
             true,
             BuildConfig.APPLICATION_ID,
             true,
-            Constant.INTERNAL_FOLDER
+            Constant.INTERNAL_FOLDER,
+            Constant.EXTENSION_HTML
         )
 
         LogUtil.i(
@@ -106,7 +109,8 @@ class MainActivity : AppCompatActivity() {
             true,
             BuildConfig.APPLICATION_ID,
             true,
-            Constant.INTERNAL_FOLDER
+            Constant.INTERNAL_FOLDER,
+            Constant.EXTENSION_HTML
         )
 
         LogUtil.v(
@@ -116,7 +120,8 @@ class MainActivity : AppCompatActivity() {
             true,
             BuildConfig.APPLICATION_ID,
             true,
-            Constant.INTERNAL_FOLDER
+            Constant.INTERNAL_FOLDER,
+            Constant.EXTENSION_HTML
         )
 
         LogUtil.printStackTrace(
@@ -125,7 +130,8 @@ class MainActivity : AppCompatActivity() {
             BuildConfig.DEBUG,
             true,
             true,
-            Constant.INTERNAL_FOLDER
+            Constant.INTERNAL_FOLDER,
+            Constant.EXTENSION_HTML
         )
 
         LogUtil.getAllLogsFileForUpload(Constant.EXTERNAL_FOLDER)
