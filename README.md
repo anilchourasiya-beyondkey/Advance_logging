@@ -37,7 +37,9 @@ dependencies {
     com.my_package.my_app.BuildConfig.DEBUG, //writing the logs only debug build and pass `true` for release build as well.
     true, //writeToFile
     com.my_package.my_app.BuildConfig.APPLICATION_ID, //log file name
-    true //createLogFileDateWise 
+    true, //createLogFileDateWise
+    Constant.INTERNAL_FOLDER,
+    Constant.EXTENSION_HTML
         )
 
 //To delete old log files which were written date wise use the below code      
