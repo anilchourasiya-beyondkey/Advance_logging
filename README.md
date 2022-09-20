@@ -60,16 +60,24 @@ This requires permission to access the storage
 
 <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
+	
+  <application
+       android:requestLegacyExternalStorage="true"
+       ....
+       
+       <provider
+          android:name="androidx.core.content.FileProvider"
+          android:authorities="${applicationId}.fileprovider"
+          android:exported="false"
+          android:grantUriPermissions="true">
+          <meta-data
+             android:name="android.support.FILE_PROVIDER_PATHS"
+             android:resource="@xml/providerfile" />
+       </provider>
 
-<provider
-      android:name="androidx.core.content.FileProvider"
-      android:authorities="${applicationId}.fileprovider"
-      android:exported="false"
-      android:grantUriPermissions="true">
-      <meta-data
-          android:name="android.support.FILE_PROVIDER_PATHS"
-          android:resource="@xml/providerfile" />
-</provider>
+ </application>
+
+
 ```
 #### providerfile.xml   
 ```gradle
