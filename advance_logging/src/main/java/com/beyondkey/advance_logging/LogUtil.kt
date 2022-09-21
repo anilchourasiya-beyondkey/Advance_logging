@@ -2,7 +2,11 @@ package com.beyondkey.advance_logging
 
 import android.os.Environment
 import android.util.Log
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import java.io.*
 import java.text.SimpleDateFormat
@@ -54,19 +58,17 @@ object LogUtil {
         log(LOG_LEVEL_ERROR, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
-        GlobalScope.launch {
-            writeLogToFile(
-                tag,
-                msg,
-                LOG_LEVEL_ERROR,
-                writeToFile,
-                createLogFileDateWise,
-                savedFilelFolder,
-                "e",
-                fileExtension
+        writeLogToFile(
+            tag,
+            msg,
+            LOG_LEVEL_ERROR,
+            writeToFile,
+            createLogFileDateWise,
+            savedFilelFolder,
+            "e",
+            fileExtension
 
-            )
-        }
+        )
     }
 
     /**
@@ -95,18 +97,16 @@ object LogUtil {
         log(LOG_LEVEL_WARN, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
-        GlobalScope.launch {
-            writeLogToFile(
-                tag,
-                msg,
-                LOG_LEVEL_WARN,
-                writeToFile,
-                createLogFileDateWise,
-                savedFilelFolder,
-                "w",
-                fileExtension
-            )
-        }
+        writeLogToFile(
+            tag,
+            msg,
+            LOG_LEVEL_WARN,
+            writeToFile,
+            createLogFileDateWise,
+            savedFilelFolder,
+            "w",
+            fileExtension
+        )
     }
 
     /**
@@ -135,18 +135,16 @@ object LogUtil {
         log(LOG_LEVEL_DEBUG, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
-        GlobalScope.launch {
-            writeLogToFile(
-                tag,
-                msg,
-                LOG_LEVEL_DEBUG,
-                writeToFile,
-                createLogFileDateWise,
-                savedFilelFolder,
-                "d",
-                fileExtension
-            )
-        }
+        writeLogToFile(
+            tag,
+            msg,
+            LOG_LEVEL_DEBUG,
+            writeToFile,
+            createLogFileDateWise,
+            savedFilelFolder,
+            "d",
+            fileExtension
+        )
     }
 
     /**
@@ -175,18 +173,16 @@ object LogUtil {
         log(LOG_LEVEL_INFO, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
-        GlobalScope.launch {
-            writeLogToFile(
-                tag,
-                msg,
-                LOG_LEVEL_INFO,
-                writeToFile,
-                createLogFileDateWise,
-                savedFilelFolder,
-                "i",
-                fileExtension
-            )
-        }
+        writeLogToFile(
+            tag,
+            msg,
+            LOG_LEVEL_INFO,
+            writeToFile,
+            createLogFileDateWise,
+            savedFilelFolder,
+            "i",
+            fileExtension
+        )
     }
 
     /**
@@ -215,18 +211,16 @@ object LogUtil {
         log(LOG_LEVEL_VERBOSE, tag, msg, buildType)
         APPLICATION_ID = applicationID
         this.SaveFileInFolder = savedFilelFolder
-        GlobalScope.launch {
-            writeLogToFile(
-                tag,
-                msg,
-                LOG_LEVEL_VERBOSE,
-                writeToFile,
-                createLogFileDateWise,
-                savedFilelFolder,
-                "v",
-                fileExtension
-            )
-        }
+        writeLogToFile(
+            tag,
+            msg,
+            LOG_LEVEL_VERBOSE,
+            writeToFile,
+            createLogFileDateWise,
+            savedFilelFolder,
+            "v",
+            fileExtension
+        )
     }
 
     fun printStackTrace(
@@ -242,26 +236,24 @@ object LogUtil {
             exception.printStackTrace()
         }
         this.SaveFileInFolder = savedFilelFolder
-        GlobalScope.launch {
-            writeLogToFile(
-                tag,
-                exception.message,
-                writeToFile,
-                createLogFileDateWise,
-                savedFilelFolder,
-                "printStackTrace",
-                fileExtension
-            )
-            writeLogToFile(
-                tag,
-                Log.getStackTraceString(exception),
-                writeToFile,
-                createLogFileDateWise,
-                savedFilelFolder,
-                "printStackTrace",
-                fileExtension
-            )
-        }
+        writeLogToFile(
+            tag,
+            exception.message,
+            writeToFile,
+            createLogFileDateWise,
+            savedFilelFolder,
+            "printStackTrace",
+            fileExtension
+        )
+        writeLogToFile(
+            tag,
+            Log.getStackTraceString(exception),
+            writeToFile,
+            createLogFileDateWise,
+            savedFilelFolder,
+            "printStackTrace",
+            fileExtension
+        )
     }
 
     private fun log(level: Int, tag: String, msg: String, buildType: Boolean) {
@@ -445,6 +437,11 @@ object LogUtil {
         writeLogToFile(tag, msg, writeToFile, createLogFileDateWise,savedFilelFolder,methodName,fileExtension)
     }
 
+    private val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply {
+        GlobalScope.launch {
+            consumeEach { it.join() }
+        }
+    }
     /**
      * writes log to file, this method does not check build type
      * @param tag TAG string
@@ -460,70 +457,73 @@ object LogUtil {
         fileExtension:String
     ) {
         this.fileOutputExtension = fileExtension
-        if (writeToFile) {
-            var msg = msg
-            if (msg == null) {
-                msg = ""
-            }
-            val date = Date()
-            val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss:SSS")
-            val strDateTime = sdf.format(date)
-            msg = "[$strDateTime] $tag : $msg"
-
-            if(fileExtension.equals(Constant.EXTENSION_HTML)){
-                when (methodName){
-                    "e" -> msg = "<font color = \"#FE0906\">"+msg+"</font><br />"
-                    "w" ->  msg = "<font color = \"#E3E303\">"+msg+"</font><br />"
-                    "d" ->  msg = "<font color = \"##2874A6\">"+msg+"</font><br />"
-                    "i" ->  msg = "<font color = \"#035FE3\">"+msg+"</font><br />"
-                    "v" ->  msg = "<font color = \"##F4D03F\">"+msg+"</font><br />"
-                    "printStackTrace" ->  msg = "<font color = \"#566573\">"+msg+"</font><br />"
+        channel.trySend(  GlobalScope.launch(start = CoroutineStart.LAZY) {
+            if (writeToFile) {
+                var msg = msg
+                if (msg == null) {
+                    msg = ""
                 }
-            }
-            val logDir:File
-            if(savedFilelFolder.equals(Constant.INTERNAL_FOLDER)){
-                logDir = File(logFileDirPathInternal)
-            }else{
-                logDir = File(logFileDirPathExternal)
-            }
-            if (logDir.exists() && !logDir.isDirectory) {
-                logDir.delete()
-            }
-            if (!logDir.exists()) {
-                logDir.mkdirs()
-            }
-            var outputFile: File
-            if (createLogFileDateWise) {
-                outputFile = File(logDir, getTodayLogFileName(fileExtension))
-            } else {
-                outputFile = File(logDir, logFileName(fileExtension))
-            }
+                val date = Date()
+                val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss:SSS")
+                val strDateTime = sdf.format(date)
+                msg = "[$strDateTime] $tag : $msg"
 
-            if (!outputFile.exists()) {
+                if(fileExtension.equals(Constant.EXTENSION_HTML)){
+                    when (methodName){
+                        "e" -> msg = "<font color = \"#FE0906\">"+msg+"</font><br />"
+                        "w" ->  msg = "<font color = \"#E3E303\">"+msg+"</font><br />"
+                        "d" ->  msg = "<font color = \"##2874A6\">"+msg+"</font><br />"
+                        "i" ->  msg = "<font color = \"#035FE3\">"+msg+"</font><br />"
+                        "v" ->  msg = "<font color = \"##F4D03F\">"+msg+"</font><br />"
+                        "printStackTrace" ->  msg = "<font color = \"#566573\">"+msg+"</font><br />"
+                    }
+                }
+                val logDir:File
+                if(savedFilelFolder.equals(Constant.INTERNAL_FOLDER)){
+                    logDir = File(logFileDirPathInternal)
+                }else{
+                    logDir = File(logFileDirPathExternal)
+                }
+                if (logDir.exists() && !logDir.isDirectory) {
+                    logDir.delete()
+                }
+                if (!logDir.exists()) {
+                    logDir.mkdirs()
+                }
+                var outputFile: File
+                if (createLogFileDateWise) {
+                    outputFile = File(logDir, getTodayLogFileName(fileExtension))
+                } else {
+                    outputFile = File(logDir, logFileName(fileExtension))
+                }
+
+                if (!outputFile.exists()) {
+                    try {
+                        outputFile.createNewFile()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
                 try {
-                    outputFile.createNewFile()
+                    val buf = BufferedWriter(FileWriter(outputFile, true))
+                    buf.append(msg)
+                    buf.newLine()
+                    buf.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                try {
+                    val fileSizeInBytes = outputFile.length()
+                    //                Log.d("LogUtil","Log file Size in bytes: "+fileSizeInBytes+" (max size is: "+LOG_FILE_MAX_SIZE+")");
+                    if (fileSizeInBytes > LOG_FILE_MAX_SIZE) {
+                        trimFileIfRequired(outputFile)
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-            try {
-                val buf = BufferedWriter(FileWriter(outputFile, true))
-                buf.append(msg)
-                buf.newLine()
-                buf.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            try {
-                val fileSizeInBytes = outputFile.length()
-                //                Log.d("LogUtil","Log file Size in bytes: "+fileSizeInBytes+" (max size is: "+LOG_FILE_MAX_SIZE+")");
-                if (fileSizeInBytes > LOG_FILE_MAX_SIZE) {
-                    trimFileIfRequired(outputFile)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        })
+
     }
 
     fun deleteDailyLogFilesOlderThanDays(days: Int, savedFilelFolder: String) {
